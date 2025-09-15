@@ -1,9 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = '';
 
-    // انتخابگرهای جدید
     const profileButtons = document.querySelectorAll('.profile-btn');
-
     const daysOfWeek = document.querySelectorAll('.day');
     const exerciseList = document.getElementById('exercises');
     const setsContainer = document.getElementById('sets-container');
@@ -14,10 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.querySelector('.close-btn');
     const reportDataEl = document.getElementById('report-data');
 
-    // متغیرهای وضعیت
     let currentDay = '';
     let currentPlan = [];
-    let currentProfileId = 1; // پروفایل پیش‌فرض
+    let currentProfileId = 1;
 
     // رویداد کلیک روی دکمه‌های پروفایل
     profileButtons.forEach(button => {
@@ -26,13 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
             profileButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             
-            if (currentDay) {
-                fetchPlanForDay(currentDay);
-            }
+            // تغییر: دیگر برنامه را دوباره بارگذاری نمی‌کنیم چون برنامه مشترک است
+            // فقط فرم ورود اطلاعات را پاک می‌کنیم تا کاربر دوباره حرکت را انتخاب کند
+            setsContainer.innerHTML = '';
+            currentExerciseTitle.innerText = 'یک حرکت را انتخاب کنید';
+            document.querySelectorAll('#exercises li').forEach(el => el.classList.remove('active'));
         });
     });
 
-    // رویداد کلیک روی روزهای هفته
     daysOfWeek.forEach(dayEl => {
         dayEl.addEventListener('click', () => {
             currentDay = dayEl.dataset.day;
@@ -43,10 +41,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // گرفتن برنامه روز از بک‌اند (با profileId)
+    // گرفتن برنامه روز از بک‌اند (بدون profileId)
     async function fetchPlanForDay(day) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}&profileId=${currentProfileId}`);
+            // تغییر: profileId از آدرس حذف شد
+            const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}`);
             if (!response.ok) throw new Error('خطا در دریافت اطلاعات');
             currentPlan = await response.json();
             renderPlan(currentPlan);
@@ -56,14 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // نمایش لیست حرکات
     function renderPlan(plan) {
         exerciseList.innerHTML = '';
         setsContainer.innerHTML = '';
         currentExerciseTitle.innerText = 'یک حرکت را انتخاب کنید';
         if (plan.length === 0) {
-            const profileText = currentProfileId === 1 ? 'پروفایل ۱' : 'پروفایل ۲';
-            exerciseList.innerHTML = `<li>برنامه‌ای برای این روز در ${profileText} یافت نشد.</li>`;
+            exerciseList.innerHTML = `<li>برنامه‌ای برای این روز یافت نشد.</li>`;
             return;
         }
         plan.forEach(item => {
@@ -80,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // نمایش فرم ورود وزنه و تکرار
     function renderSetInputs(exerciseName, setsCount) {
         currentExerciseTitle.innerText = `حرکت: ${exerciseName}`;
         setsContainer.innerHTML = '';
@@ -100,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ذخیره کردن اطلاعات یک ست
+    // ذخیره کردن اطلاعات یک ست (بدون تغییر)
     async function saveSet(event) {
         const btn = event.target;
         const setRow = btn.closest('.set-row');
@@ -140,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // مدیریت آپلود فایل اکسل
+    // مدیریت آپلود فایل اکسل (بدون profileId)
     uploadInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -164,13 +160,14 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             try {
+                // تغییر: profileId از بدنه درخواست حذف شد
                 const response = await fetch(`${API_BASE_URL}/api/upload-plan`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ planData, profileId: currentProfileId })
+                    body: JSON.stringify({ planData })
                 });
                 if (!response.ok) throw new Error('خطا در آپلود فایل');
-                alert(`برنامه برای پروفایل ${currentProfileId} با موفقیت آپلود شد!`);
+                alert('برنامه مشترک با موفقیت آپلود شد!'); // تغییر متن پیام
                 if(currentDay) fetchPlanForDay(currentDay);
             } catch (error) {
                 console.error(error);
@@ -180,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsArrayBuffer(file);
     });
 
-    // نمایش گزارش روز
+    // نمایش گزارش روز (بدون تغییر)
     reportBtn.addEventListener('click', async () => {
         const today = new Date().toISOString().split('T')[0];
         try {
