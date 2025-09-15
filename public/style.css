@@ -1,0 +1,219 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.main-container {
+    width: 100%;
+    max-width: 1200px;
+}
+
+.app-frame {
+    display: grid;
+    grid-template-columns: 1fr 1fr 200px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+        "blue green yellow"
+        "blue green brown";
+    gap: 15px;
+    border: 2px solid #ccc;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 10px;
+    height: 80vh;
+}
+
+.panel {
+    border-radius: 8px;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.blue-panel {
+    grid-area: blue;
+    background-color: #4a90e2; /* Blue */
+    color: white;
+}
+
+.green-panel {
+    grid-area: green;
+    background-color: #7ed321; /* Green */
+}
+
+.brown-panel {
+    grid-area: brown;
+    background-color: #8b572a; /* Brown */
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.yellow-panel {
+    grid-area: yellow;
+    background-color: #f8e71c; /* Yellow */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+h2 {
+    margin-top: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    padding-bottom: 10px;
+}
+
+.green-panel h2 {
+    color: #333;
+    border-bottom: 1px solid #ccc;
+}
+
+
+/* Days of the week */
+.day {
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.day:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.05);
+}
+.day.active {
+    background-color: #4a90e2;
+    color: white;
+    font-weight: bold;
+}
+
+/* Exercise list */
+#exercises {
+    list-style: none;
+    padding: 0;
+}
+
+#exercises li {
+    padding: 12px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#exercises li:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+#exercises li.active {
+    background-color: #f8e71c;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Logging form */
+#sets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.set-row {
+    display: grid;
+    grid-template-columns: 50px 1fr 1fr 80px;
+    gap: 10px;
+    align-items: center;
+}
+
+.set-row label {
+    font-weight: bold;
+}
+
+.set-row input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.save-set-btn {
+    padding: 8px 12px;
+    border: none;
+    background-color: #4a90e2;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.save-set-btn.saved {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.upload-btn, #report-btn {
+    padding: 12px;
+    text-align: center;
+    background-color: #f8e71c;
+    color: #333;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 10% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 8px;
+    position: relative;
+}
+
+.close-btn {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#report-data {
+    white-space: pre-wrap;
+    background-color: #eee;
+    padding: 15px;
+    border-radius: 5px;
+    max-height: 50vh;
+    overflow-y: auto;
+}
