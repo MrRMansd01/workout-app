@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // آدرس بک‌اند شما. اگر به صورت لوکال تست می‌کنید، آدرس دیگری خواهد بود.
-    const API_BASE_URL = ''; // برای Vercel خالی می‌گذاریم
+    const API_BASE_URL = '';
+
+    // انتخابگرهای جدید
+    const profileButtons = document.querySelectorAll('.profile-btn');
 
     const daysOfWeek = document.querySelectorAll('.day');
     const exerciseList = document.getElementById('exercises');
@@ -12,26 +14,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.querySelector('.close-btn');
     const reportDataEl = document.getElementById('report-data');
 
+    // متغیرهای وضعیت
     let currentDay = '';
     let currentPlan = [];
+    let currentProfileId = 1; // پروفایل پیش‌فرض
+
+    // رویداد کلیک روی دکمه‌های پروفایل
+    profileButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentProfileId = parseInt(button.dataset.profile);
+            profileButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            if (currentDay) {
+                fetchPlanForDay(currentDay);
+            }
+        });
+    });
 
     // رویداد کلیک روی روزهای هفته
     daysOfWeek.forEach(dayEl => {
         dayEl.addEventListener('click', () => {
             currentDay = dayEl.dataset.day;
-            
             daysOfWeek.forEach(d => d.classList.remove('active'));
             dayEl.classList.add('active');
-
             document.getElementById('today-program-title').innerText = `برنامه روز: ${currentDay}`;
             fetchPlanForDay(currentDay);
         });
     });
 
-    // گرفتن برنامه روز از بک‌اند
+    // گرفتن برنامه روز از بک‌اند (با profileId)
     async function fetchPlanForDay(day) {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}`);
+            const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}&profileId=${currentProfileId}`);
             if (!response.ok) throw new Error('خطا در دریافت اطلاعات');
             currentPlan = await response.json();
             renderPlan(currentPlan);
@@ -41,22 +56,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // نمایش لیست حرکات در پنل آبی
+    // نمایش لیست حرکات
     function renderPlan(plan) {
         exerciseList.innerHTML = '';
         setsContainer.innerHTML = '';
         currentExerciseTitle.innerText = 'یک حرکت را انتخاب کنید';
         if (plan.length === 0) {
-            exerciseList.innerHTML = '<li>برنامه‌ای برای این روز یافت نشد.</li>';
+            const profileText = currentProfileId === 1 ? 'پروفایل ۱' : 'پروفایل ۲';
+            exerciseList.innerHTML = `<li>برنامه‌ای برای این روز در ${profileText} یافت نشد.</li>`;
             return;
         }
-
         plan.forEach(item => {
             const li = document.createElement('li');
             li.textContent = `${item.exercise_name} (${item.sets_count} ست)`;
             li.dataset.exerciseName = item.exercise_name;
             li.dataset.setsCount = item.sets_count;
-
             li.addEventListener('click', () => {
                 document.querySelectorAll('#exercises li').forEach(el => el.classList.remove('active'));
                 li.classList.add('active');
@@ -65,12 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
             exerciseList.appendChild(li);
         });
     }
-
-    // نمایش فرم ورود وزنه و تکرار در پنل سبز
+    
+    // نمایش فرم ورود وزنه و تکرار
     function renderSetInputs(exerciseName, setsCount) {
         currentExerciseTitle.innerText = `حرکت: ${exerciseName}`;
         setsContainer.innerHTML = '';
-
         for (let i = 1; i <= setsCount; i++) {
             const setRow = document.createElement('div');
             setRow.classList.add('set-row');
@@ -82,8 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             setsContainer.appendChild(setRow);
         }
-        
-        // افزودن ایونت به دکمه‌های ذخیره
         document.querySelectorAll('.save-set-btn').forEach(btn => {
             btn.addEventListener('click', saveSet);
         });
@@ -104,11 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const logData = {
-            log_date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+            log_date: new Date().toISOString().split('T')[0],
             exercise_name: exerciseName,
             set_number: parseInt(setNumber),
             weight: parseFloat(weight),
-            reps: parseInt(reps)
+            reps: parseInt(reps),
+            profileId: currentProfileId
         };
 
         try {
@@ -117,17 +129,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(logData)
             });
-
             if (!response.ok) throw new Error('خطا در ذخیره اطلاعات');
-            
             const result = await response.json();
-            console.log(result.message);
-            
-            // غیرفعال کردن دکمه بعد از ذخیره
             btn.textContent = 'ذخیره شد';
             btn.disabled = true;
             btn.classList.add('saved');
-
         } catch (error) {
             console.error(error);
             alert(error.message);
@@ -148,9 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             workbook.SheetNames.forEach(sheetName => {
                 const worksheet = workbook.Sheets[sheetName];
                 const json = XLSX.utils.sheet_to_json(worksheet);
-                
                 json.forEach(row => {
-                    // مطمئن شوید نام ستون‌ها در فایل اکسل دقیقاً همین باشد
                     planData.push({
                         day_name: sheetName,
                         exercise_name: row['حرکت'],
@@ -159,18 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             });
 
-            // ارسال داده‌های استخراج شده به بک‌اند
             try {
                 const response = await fetch(`${API_BASE_URL}/api/upload-plan`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ planData })
+                    body: JSON.stringify({ planData, profileId: currentProfileId })
                 });
                 if (!response.ok) throw new Error('خطا در آپلود فایل');
-                alert('برنامه با موفقیت آپلود شد!');
-                // رفرش کردن برنامه روز فعلی
+                alert(`برنامه برای پروفایل ${currentProfileId} با موفقیت آپلود شد!`);
                 if(currentDay) fetchPlanForDay(currentDay);
-
             } catch (error) {
                 console.error(error);
                 alert(error.message);
@@ -183,15 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
     reportBtn.addEventListener('click', async () => {
         const today = new Date().toISOString().split('T')[0];
         try {
-            const response = await fetch(`${API_BASE_URL}/api/report?date=${today}`);
+            const response = await fetch(`${API_BASE_URL}/api/report?date=${today}&profileId=${currentProfileId}`);
             if (!response.ok) throw new Error('خطا در دریافت گزارش');
             const report = await response.json();
             
-            let reportText = `تاریخ: ${today}\n\n`;
+            let reportText = `تاریخ: ${today}\nپروفایل: ${currentProfileId}\n\n`;
             if (report.length === 0) {
                 reportText += "امروز هیچ حرکتی ثبت نشده است.";
             } else {
-                // گروه بندی حرکات
                 const exercises = {};
                 report.forEach(log => {
                     if (!exercises[log.exercise_name]) {
@@ -199,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     exercises[log.exercise_name].push(log);
                 });
-
                 for (const exName in exercises) {
                     reportText += `--- ${exName} ---\n`;
                     exercises[exName].forEach(log => {
@@ -208,16 +207,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     reportText += '\n';
                 }
             }
-
             reportDataEl.textContent = reportText;
             modal.style.display = 'block';
-
         } catch (error) {
             alert(error.message);
         }
     });
     
-    // بستن مودال گزارش
     closeModalBtn.onclick = () => { modal.style.display = 'none'; }
     window.onclick = (event) => {
         if (event.target == modal) {

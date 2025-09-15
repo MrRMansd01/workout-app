@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workout Tracker</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
@@ -20,6 +21,15 @@
             </div>
             <div id="day-panel" class="panel brown-panel">
                 <h2 id="today-program-title">برنامه امروز</h2>
+                
+                <div class="profile-switcher">
+                    <p>انتخاب پروفایل:</p>
+                    <div class="profile-buttons">
+                        <button class="profile-btn active" data-profile="1">پروفایل ۱</button>
+                        <button class="profile-btn" data-profile="2">پروفایل ۲</button>
+                    </div>
+                </div>
+                
                 <div class="controls">
                     <label for="excel-upload" class="upload-btn">آپلود برنامه هفتگی (Excel)</label>
                     <input type="file" id="excel-upload" accept=".xlsx, .xls" style="display: none;">
