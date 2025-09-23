@@ -1,147 +1,216 @@
-// public/script.js
-document.addEventListener('DOMContentLoaded', () => {
-    const API_BASE_URL = '';
+// Global variables
+const API_BASE_URL = '';
+let currentDay = '';
+let currentPlan = [];
+let currentProfileId = 1;
 
-    const profileButtons = document.querySelectorAll('.profile-btn');
-    const daysOfWeek = document.querySelectorAll('.day');
-    const exerciseList = document.getElementById('exercises');
-    const setsContainer = document.getElementById('sets-container');
-    const currentExerciseTitle = document.getElementById('current-exercise-title');
-    const uploadInput = document.getElementById('excel-upload');
-    const reportBtn = document.getElementById('report-btn');
-    const modal = document.getElementById('report-modal');
-    const closeModalBtn = document.querySelector('.close-btn');
-    const reportDataEl = document.getElementById('report-data');
+// DOM elements
+const elements = {
+    profileButtons: document.querySelectorAll('.profile-btn'),
+    dayButtons: document.querySelectorAll('.day-btn'),
+    exerciseList: document.getElementById('exercise-list'),
+    setsContainer: document.getElementById('sets-container'),
+    currentExerciseTitle: document.getElementById('current-exercise-title'),
+    uploadInput: document.getElementById('excel-upload'),
+    reportBtn: document.getElementById('report-btn'),
+    modal: document.getElementById('report-modal'),
+    closeModalBtn: document.querySelector('.close-btn'),
+    reportData: document.getElementById('report-data'),
+    exercisesTitle: document.getElementById('exercises-title')
+};
 
-    let currentDay = '';
-    let currentPlan = [];
-    let currentProfileId = 1;
+// Utility functions
+function showToast(message, type = 'success') {
+    document.querySelectorAll('.toast').forEach(toast => toast.remove());
+    
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.remove(), 3000);
+}
 
-    profileButtons.forEach(button => {
+function updateEmptyState(container, icon, message) {
+    container.innerHTML = `
+        <div class="empty-state">
+            <div class="empty-icon">${icon}</div>
+            <p class="empty-text">${message}</p>
+        </div>
+    `;
+}
+
+function showLoading(container, message = 'در حال بارگذاری...') {
+    container.innerHTML = `
+        <div class="loading-state">
+            <div class="loading-icon">⏳</div>
+            <p class="loading-text">${message}</p>
+        </div>
+    `;
+}
+
+// Profile management
+function initProfileButtons() {
+    elements.profileButtons.forEach(button => {
         button.addEventListener('click', () => {
             currentProfileId = parseInt(button.dataset.profile);
-            profileButtons.forEach(btn => btn.classList.remove('active'));
+            elements.profileButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             
+            resetSetsPanel();
+            showToast(`پروفایل ${currentProfileId} انتخاب شد`);
+
             if (currentDay) {
                 fetchPlanForDay(currentDay);
             }
         });
     });
+}
 
-    daysOfWeek.forEach(dayEl => {
-        dayEl.addEventListener('click', () => {
-            currentDay = dayEl.dataset.day;
-            daysOfWeek.forEach(d => d.classList.remove('active'));
-            dayEl.classList.add('active');
-            document.getElementById('today-program-title').innerText = `برنامه روز: ${currentDay}`;
+function resetSetsPanel() {
+    updateEmptyState(elements.setsContainer, '📝', 'برای شروع ثبت، حرکت مورد نظر را انتخاب کنید');
+    elements.currentExerciseTitle.textContent = '⚡ یک حرکت را انتخاب کنید';
+    document.querySelectorAll('.exercise-item').forEach(el => el.classList.remove('active'));
+}
+
+// Day management
+function initDayButtons() {
+    elements.dayButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            currentDay = button.dataset.day;
+            elements.dayButtons.forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+            
+            elements.exercisesTitle.textContent = `🏋️ حرکات ${currentDay}`;
+            
             fetchPlanForDay(currentDay);
         });
     });
+}
 
-    // گرفتن برنامه روز از بک‌اند (تغییر یافته و صحیح)
-    async function fetchPlanForDay(day) {
-        try {
-            // این خط اصلاح شده و دیگر profileId ارسال نمی‌کند
-            const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}`);
-            
-            if (!response.ok) {
-                // نمایش خطای سرور در کنسول برای دیباگ بهتر
-                const errorText = await response.text();
-                console.error("Server Error:", errorText);
-                throw new Error('خطا در دریافت اطلاعات از سرور');
-            }
-            currentPlan = await response.json();
-            renderPlan(currentPlan);
-        } catch (error) {
-            console.error(error);
-            alert(error.message);
-        }
+// Plan management
+async function fetchPlanForDay(day) {
+    try {
+        showLoading(elements.exerciseList);
+        
+        const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}`);
+        if (!response.ok) throw new Error('خطا در دریافت اطلاعات');
+        
+        currentPlan = await response.json();
+        renderPlan(currentPlan);
+        
+    } catch (error) {
+        console.error(error);
+        updateEmptyState(elements.exerciseList, '❌', 'خطا در بارگذاری برنامه');
+        showToast('خطا در بارگذاری برنامه', 'error');
     }
+}
 
-    function renderPlan(plan) {
-        exerciseList.innerHTML = '';
-        setsContainer.innerHTML = '';
-        currentExerciseTitle.innerText = 'یک حرکت را انتخاب کنید';
-        if (plan.length === 0) {
-            exerciseList.innerHTML = `<li>برنامه‌ای برای این روز یافت نشد.</li>`;
-            return;
-        }
-        plan.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = `${item.exercise_name} (${item.sets_count} ست)`;
-            li.dataset.exerciseName = item.exercise_name;
-            li.dataset.setsCount = item.sets_count;
-            li.addEventListener('click', () => {
-                document.querySelectorAll('#exercises li').forEach(el => el.classList.remove('active'));
-                li.classList.add('active');
-                renderSetInputs(item.exercise_name, item.sets_count);
-            });
-            exerciseList.appendChild(li);
-        });
+function renderPlan(plan) {
+    resetSetsPanel();
+    
+    if (plan.length === 0) {
+        updateEmptyState(elements.exerciseList, '🤷‍♂️', 'برنامه‌ای برای این روز یافت نشد');
+        return;
     }
     
-    function renderSetInputs(exerciseName, setsCount) {
-        currentExerciseTitle.innerText = `حرکت: ${exerciseName}`;
-        setsContainer.innerHTML = '';
-        for (let i = 1; i <= setsCount; i++) {
-            const setRow = document.createElement('div');
-            setRow.classList.add('set-row');
-            setRow.innerHTML = `
-                <label>ست ${i}</label>
-                <input type="number" placeholder="وزنه (kg)" class="weight-input" />
-                <input type="number" placeholder="تکرار" class="reps-input" />
-                <button class="save-set-btn" data-set-number="${i}">ذخیره</button>
-            `;
-            setsContainer.appendChild(setRow);
-        }
-        document.querySelectorAll('.save-set-btn').forEach(btn => {
-            btn.addEventListener('click', saveSet);
-        });
-    }
-
-    async function saveSet(event) {
-        const btn = event.target;
-        const setRow = btn.closest('.set-row');
-        const weight = setRow.querySelector('.weight-input').value;
-        const reps = setRow.querySelector('.reps-input').value;
-        const setNumber = btn.dataset.setNumber;
-        const exerciseName = currentExerciseTitle.innerText.replace('حرکت: ', '');
+    elements.exerciseList.innerHTML = '';
+    
+    plan.forEach(item => {
+        const li = document.createElement('div');
+        li.className = 'exercise-item';
+        li.dataset.exerciseName = item.exercise_name;
+        li.dataset.setsCount = item.sets_count;
         
-        if (!weight || !reps) {
-            alert('لطفا مقادیر وزنه و تکرار را وارد کنید.');
-            return;
-        }
+        li.innerHTML = `
+            <div class="exercise-name">${item.exercise_name}</div>
+            <div class="exercise-sets">${item.sets_count} ست</div>
+        `;
+        
+        li.addEventListener('click', () => selectExercise(li, item));
+        
+        elements.exerciseList.appendChild(li);
+    });
+}
 
-        const logData = {
-            log_date: new Date().toISOString().split('T')[0],
-            exercise_name: exerciseName,
-            set_number: parseInt(setNumber),
-            weight: parseFloat(weight),
-            reps: parseInt(reps),
-            profileId: currentProfileId
-        };
+function selectExercise(element, item) {
+    document.querySelectorAll('.exercise-item').forEach(el => el.classList.remove('active'));
+    element.classList.add('active');
+    renderSetInputs(item.exercise_name, item.sets_count);
+}
 
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/log-set`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(logData)
-            });
-            if (!response.ok) throw new Error('خطا در ذخیره اطلاعات');
-            btn.textContent = 'ذخیره شد';
-            btn.disabled = true;
-            btn.classList.add('saved');
-        } catch (error) {
-            console.error(error);
-            alert(error.message);
-        }
+// Sets management
+function renderSetInputs(exerciseName, setsCount) {
+    elements.currentExerciseTitle.textContent = `🏋️ ${exerciseName}`;
+    elements.setsContainer.innerHTML = '';
+    
+    for (let i = 1; i <= setsCount; i++) {
+        const setRow = document.createElement('div');
+        setRow.className = 'set-row';
+        setRow.innerHTML = `
+            <div class="set-label">ست ${i}</div>
+            <input type="number" placeholder="وزنه (kg)" class="set-input weight-input" min="0" step="0.5">
+            <input type="number" placeholder="تکرار" class="set-input reps-input" min="1" step="1">
+            <button class="save-btn" data-set-number="${i}">ذخیره</button>
+        `;
+        
+        setRow.querySelector('.save-btn').addEventListener('click', saveSet);
+        elements.setsContainer.appendChild(setRow);
+    }
+}
+
+async function saveSet(event) {
+    const btn = event.target;
+    const setRow = btn.closest('.set-row');
+    const weightInput = setRow.querySelector('.weight-input');
+    const repsInput = setRow.querySelector('.reps-input');
+    
+    if (!weightInput.value || !repsInput.value) {
+        showToast('لطفا مقادیر وزنه و تکرار را وارد کنید', 'error');
+        return;
     }
 
-    uploadInput.addEventListener('change', (event) => {
+    btn.textContent = '...';
+    btn.disabled = true;
+
+    const logData = {
+        log_date: new Date().toISOString().split('T')[0],
+        exercise_name: elements.currentExerciseTitle.textContent.replace('🏋️ ', ''),
+        set_number: parseInt(btn.dataset.setNumber),
+        weight: parseFloat(weightInput.value),
+        reps: parseInt(repsInput.value),
+        profileId: currentProfileId
+    };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/log-set`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(logData)
+        });
+        
+        if (!response.ok) throw new Error('خطا در ذخیره اطلاعات');
+        
+        btn.textContent = 'ذخیره شد';
+        btn.classList.add('saved');
+        showToast(`ست ${btn.dataset.setNumber} با موفقیت ثبت شد!`);
+        
+    } catch (error) {
+        console.error(error);
+        btn.textContent = 'خطا';
+        btn.disabled = false;
+        showToast(error.message, 'error');
+    }
+}
+
+
+// File upload management
+function initFileUpload() {
+    elements.uploadInput.addEventListener('change', async (event) => {
         const file = event.target.files[0];
         if (!file) return;
 
+        showToast('در حال پردازش فایل اکسل...');
         const reader = new FileReader();
         reader.onload = async (e) => {
             const data = new Uint8Array(e.target.result);
@@ -167,17 +236,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({ planData })
                 });
                 if (!response.ok) throw new Error('خطا در آپلود فایل');
-                alert(`برنامه عمومی با موفقیت آپلود شد!`);
+                showToast(`برنامه با موفقیت آپلود شد!`, 'success');
                 if(currentDay) fetchPlanForDay(currentDay);
             } catch (error) {
                 console.error(error);
-                alert(error.message);
+                showToast(error.message, 'error');
             }
         };
         reader.readAsArrayBuffer(file);
     });
+}
 
-    reportBtn.addEventListener('click', async () => {
+// Report management
+function initReportButton() {
+    elements.reportBtn.addEventListener('click', async () => {
         const today = new Date().toISOString().split('T')[0];
         try {
             const response = await fetch(`${API_BASE_URL}/api/report?date=${today}&profileId=${currentProfileId}`);
@@ -190,9 +262,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const exercises = {};
                 report.forEach(log => {
-                    if (!exercises[log.exercise_name]) {
-                        exercises[log.exercise_name] = [];
-                    }
+                    if (!exercises[log.exercise_name]) exercises[log.exercise_name] = [];
                     exercises[log.exercise_name].push(log);
                 });
                 for (const exName in exercises) {
@@ -203,17 +273,45 @@ document.addEventListener('DOMContentLoaded', () => {
                     reportText += '\n';
                 }
             }
-            reportDataEl.textContent = reportText;
-            modal.style.display = 'block';
+            elements.reportData.textContent = reportText;
+            elements.modal.style.display = 'flex';
         } catch (error) {
-            alert(error.message);
+            showToast(error.message, 'error');
         }
     });
-    
-    closeModalBtn.onclick = () => { modal.style.display = 'none'; }
-    window.onclick = (event) => {
-        if (event.target == modal) {
-            modal.style.display = 'none';
+}
+
+// Modal management
+function initModal() {
+    elements.closeModalBtn.addEventListener('click', () => {
+        elements.modal.style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+        if (event.target == elements.modal) {
+            elements.modal.style.display = 'none';
         }
+    });
+}
+
+// Auto-select today's day
+function selectTodayByDefault() {
+    const dayNames = ['یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه', 'شنبه'];
+    const todayName = dayNames[new Date().getDay()];
+    const todayButton = document.querySelector(`.day-btn[data-day="${todayName}"]`);
+    if (todayButton) {
+        todayButton.click();
     }
-});
+}
+
+// Initialize application
+function initApp() {
+    initProfileButtons();
+    initDayButtons();
+    initFileUpload();
+    initReportButton();
+    initModal();
+    selectTodayByDefault();
+    console.log('Workout Tracker initialized successfully');
+}
+
+document.addEventListener('DOMContentLoaded', initApp);
