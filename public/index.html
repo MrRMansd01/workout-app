@@ -7,50 +7,66 @@
     <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="main-container">
-        <div class="app-frame">
-            <div id="exercise-list-panel" class="panel blue-panel">
-                <h2>حرکات امروز</h2>
-                <ul id="exercises"></ul>
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i>
+                <h1>WorkoutApp</h1>
             </div>
-            <div id="logging-panel" class="panel green-panel">
-                <h2 id="current-exercise-title">یک حرکت را انتخاب کنید</h2>
-                <div id="sets-container"></div>
+            <div class="profile-switcher">
+                <p>انتخاب پروفایل:</p>
+                <div class="profile-buttons">
+                    <button class="profile-btn active" data-profile="1">پروفایل ۱</button>
+                    <button class="profile-btn" data-profile="2">پروفایل ۲</button>
+                </div>
             </div>
-            <div id="day-panel" class="panel brown-panel">
-                <h2 id="today-program-title">برنامه امروز</h2>
-                
-                <div class="profile-switcher">
-                    <p>انتخاب پروفایل:</p>
-                    <div class="profile-buttons">
-                        <button class="profile-btn active" data-profile="1">پروفایل ۱</button>
-                        <button class="profile-btn" data-profile="2">پروفایل ۲</button>
+            <div class="day-selector">
+                <p>انتخاب روز:</p>
+                <div class="day-buttons">
+                    <button class="day-btn" data-day="شنبه">شنبه</button>
+                    <button class="day-btn" data-day="یکشنبه">یکشنبه</button>
+                    <button class="day-btn" data-day="دوشنبه">دوشنبه</button>
+                    <button class="day-btn" data-day="سه‌شنبه">سه‌شنبه</button>
+                    <button class="day-btn" data-day="چهارشنبه">چهارشنبه</button>
+                    <button class="day-btn" data-day="پنج‌شنبه">پنج‌شنبه</button>
+                    <button class="day-btn" data-day="جمعه">جمعه</button>
+                </div>
+            </div>
+            <div class="controls">
+                 <label for="excel-upload" class="control-btn upload-btn">
+                    <i class="fas fa-file-upload"></i> آپلود برنامه
+                </label>
+                <input type="file" id="excel-upload" accept=".xlsx, .xls" style="display: none;">
+                <button id="report-btn" class="control-btn">
+                    <i class="fas fa-chart-line"></i> گزارش امروز
+                </button>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div id="exercise-list-panel" class="panel">
+                <h2 id="exercises-title">🏋️ حرکات امروز</h2>
+                <div id="exercise-list" class="exercise-list-container">
+                    </div>
+            </div>
+            <div id="logging-panel" class="panel">
+                <h2 id="current-exercise-title">⚡ یک حرکت را انتخاب کنید</h2>
+                <div id="sets-container" class="sets-container">
+                     <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p class="empty-text">برای شروع ثبت، حرکت مورد نظر را انتخاب کنید</p>
                     </div>
                 </div>
-                
-                <div class="controls">
-                    <label for="excel-upload" class="upload-btn">آپلود برنامه هفتگی (Excel)</label>
-                    <input type="file" id="excel-upload" accept=".xlsx, .xls" style="display: none;">
-                    <button id="report-btn">گزارش امروز</button>
-                </div>
             </div>
-            <div id="week-days-panel" class="panel yellow-panel">
-                <div class="day" data-day="شنبه">شنبه</div>
-                <div class="day" data-day="یکشنبه">یکشنبه</div>
-                <div class="day" data-day="دوشنبه">دوشنبه</div>
-                <div class="day" data-day="سه‌شنبه">سه‌شنبه</div>
-                <div class="day" data-day="چهارشنبه">چهارشنبه</div>
-                <div class="day" data-day="پنج‌شنبه">پنج‌شنبه</div>
-                <div class="day" data-day="جمعه">جمعه</div>
-            </div>
-        </div>
+        </main>
     </div>
 
     <div id="report-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
+            <button class="close-btn">&times;</button>
             <h2>گزارش امروز</h2>
             <pre id="report-data"></pre>
         </div>
