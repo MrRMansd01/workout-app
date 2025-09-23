@@ -3,77 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ردیاب تمرینات</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>Workout Tracker</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
     <div class="main-container">
-        <header class="app-header">
-            <h1>💪 ردیاب تمرینات</h1>
-            <p>مسیر موفقیت‌تان را دنبال کنید</p>
-        </header>
-
-        <main class="app-grid">
-            <section class="panel days-panel">
-                <h2 class="panel-title">🗓️ انتخاب روز</h2>
-                <div class="days-grid">
-                    <button class="day-btn" data-day="شنبه">شنبه</button>
-                    <button class="day-btn" data-day="یکشنبه">یکشنبه</button>
-                    <button class="day-btn" data-day="دوشنبه">دوشنبه</button>
-                    <button class="day-btn" data-day="سه‌شنبه">سه‌شنبه</button>
-                    <button class="day-btn" data-day="چهارشنبه">چهارشنبه</button>
-                    <button class="day-btn" data-day="پنج‌شنبه">پنج‌شنبه</button>
-                    <button class="day-btn" data-day="جمعه">جمعه</button>
-                </div>
-            </section>
-
-            <section class="panel exercises-panel">
-                <h2 class="panel-title" id="exercises-title">🏋️ حرکات امروز</h2>
-                <ul class="exercise-list" id="exercise-list">
-                    <div class="empty-state">
-                        <div class="empty-icon">🏃‍♂️</div>
-                        <p>ابتدا روز مورد نظر را انتخاب کنید</p>
-                    </div>
-                </ul>
-            </section>
-
-            <section class="panel sets-panel">
-                <h2 class="panel-title" id="current-exercise-title">⚡ یک حرکت را انتخاب کنید</h2>
-                <div class="sets-container" id="sets-container">
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <p>برای شروع ثبت، حرکت را انتخاب کنید</p>
-                    </div>
-                </div>
-            </section>
-
-            <section class="panel controls-panel">
-                <div class="controls-grid">
+        <div class="app-frame">
+            <div id="exercise-list-panel" class="panel blue-panel">
+                <h2>حرکات امروز</h2>
+                <ul id="exercises"></ul>
+            </div>
+            <div id="logging-panel" class="panel green-panel">
+                <h2 id="current-exercise-title">یک حرکت را انتخاب کنید</h2>
+                <div id="sets-container"></div>
+            </div>
+            <div id="day-panel" class="panel brown-panel">
+                <h2 id="today-program-title">برنامه امروز</h2>
+                
+                <div class="profile-switcher">
+                    <p>انتخاب پروفایل:</p>
                     <div class="profile-buttons">
-                        <button class="profile-btn active" data-profile="1">👤 پروفایل ۱</button>
-                        <button class="profile-btn" data-profile="2">👤 پروفایل ۲</button>
-                    </div>
-                    <div class="actions-section">
-                        <label class="btn btn-upload" for="excel-upload">📊 آپلود برنامه</label>
-                        <input type="file" id="excel-upload" class="sr-only" accept=".xlsx,.xls">
-                        <button class="btn btn-report" id="report-btn">📈 گزارش امروز</button>
+                        <button class="profile-btn active" data-profile="1">پروفایل ۱</button>
+                        <button class="profile-btn" data-profile="2">پروفایل ۲</button>
                     </div>
                 </div>
-            </section>
-        </main>
+                
+                <div class="controls">
+                    <label for="excel-upload" class="upload-btn">آپلود برنامه هفتگی (Excel)</label>
+                    <input type="file" id="excel-upload" accept=".xlsx, .xls" style="display: none;">
+                    <button id="report-btn">گزارش امروز</button>
+                </div>
+            </div>
+            <div id="week-days-panel" class="panel yellow-panel">
+                <div class="day" data-day="شنبه">شنبه</div>
+                <div class="day" data-day="یکشنبه">یکشنبه</div>
+                <div class="day" data-day="دوشنبه">دوشنبه</div>
+                <div class="day" data-day="سه‌شنبه">سه‌شنبه</div>
+                <div class="day" data-day="چهارشنبه">چهارشنبه</div>
+                <div class="day" data-day="پنج‌شنبه">پنج‌شنبه</div>
+                <div class="day" data-day="جمعه">جمعه</div>
+            </div>
+        </div>
     </div>
 
-    <div class="modal" id="report-modal">
+    <div id="report-modal" class="modal">
         <div class="modal-content">
-            <header class="modal-header">
-                <h2 class="modal-title">📊 گزارش روزانه</h2>
-                <button class="close-btn">&times;</button>
-            </header>
-            <pre class="report-content" id="report-data"></pre>
+            <span class="close-btn">&times;</span>
+            <h2>گزارش امروز</h2>
+            <pre id="report-data"></pre>
         </div>
     </div>
 
