@@ -45,19 +45,15 @@ app.post('/api/upload-plan', async (req, res) => {
     res.status(200).json({ message: 'برنامه با موفقیت آپلود شد', data });
 });
 
-// اندپوینت برای گرفتن برنامه یک روز خاص
+// اندپوینت برای گرفتن برنامه یک روز خاص (تغییر یافته)
 app.get('/api/plan', async (req, res) => {
-    const { day, profileId } = req.query;
+    const { day } = req.query; // profileId از اینجا حذف شد
 
-    if (!profileId) {
-        return res.status(400).json({ error: 'Profile ID is required' });
-    }
-
+    // کوئری دیگر بر اساس profile_id فیلتر نمی‌کند
     const { data, error } = await supabase
         .from('workout_plans')
         .select('*')
-        .eq('day_name', day)
-        .eq('profile_id', profileId);
+        .eq('day_name', day);
 
     if (error) {
         return res.status(500).json({ error: error.message });
