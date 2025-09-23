@@ -12,78 +12,67 @@
 </head>
 <body>
     <div class="main-container">
-        <div class="app-header">
+        <header class="app-header">
             <h1>💪 ردیاب تمرینات</h1>
             <p>مسیر موفقیت‌تان را دنبال کنید</p>
-        </div>
+        </header>
 
-        <div class="app-grid">
-            <div class="panel days-panel">
+        <main class="app-grid">
+            <section class="panel days-panel">
                 <h2 class="panel-title">🗓️ انتخاب روز</h2>
                 <div class="days-grid">
-                    <button class="day-btn" data-day="شنبه" type="button">شنبه</button>
-                    <button class="day-btn" data-day="یکشنبه" type="button">یکشنبه</button>
-                    <button class="day-btn" data-day="دوشنبه" type="button">دوشنبه</button>
-                    <button class="day-btn" data-day="سه‌شنبه" type="button">سه‌شنبه</button>
-                    <button class="day-btn" data-day="چهارشنبه" type="button">چهارشنبه</button>
-                    <button class="day-btn" data-day="پنج‌شنبه" type="button">پنج‌شنبه</button>
-                    <button class="day-btn" data-day="جمعه" type="button">جمعه</button>
+                    <button class="day-btn" data-day="شنبه">شنبه</button>
+                    <button class="day-btn" data-day="یکشنبه">یکشنبه</button>
+                    <button class="day-btn" data-day="دوشنبه">دوشنبه</button>
+                    <button class="day-btn" data-day="سه‌شنبه">سه‌شنبه</button>
+                    <button class="day-btn" data-day="چهارشنبه">چهارشنبه</button>
+                    <button class="day-btn" data-day="پنج‌شنبه">پنج‌شنبه</button>
+                    <button class="day-btn" data-day="جمعه">جمعه</button>
                 </div>
-            </div>
+            </section>
 
-            <div class="panel exercises-panel">
+            <section class="panel exercises-panel">
                 <h2 class="panel-title" id="exercises-title">🏋️ حرکات امروز</h2>
                 <ul class="exercise-list" id="exercise-list">
                     <div class="empty-state">
                         <div class="empty-icon">🏃‍♂️</div>
-                        <p class="empty-text">ابتدا روز مورد نظر را انتخاب کنید</p>
+                        <p>ابتدا روز مورد نظر را انتخاب کنید</p>
                     </div>
                 </ul>
-            </div>
+            </section>
 
-            <div class="panel sets-panel">
+            <section class="panel sets-panel">
                 <h2 class="panel-title" id="current-exercise-title">⚡ یک حرکت را انتخاب کنید</h2>
                 <div class="sets-container" id="sets-container">
                     <div class="empty-state">
                         <div class="empty-icon">📝</div>
-                        <p class="empty-text">برای شروع ثبت، حرکت مورد نظر را انتخاب کنید</p>
+                        <p>برای شروع ثبت، حرکت را انتخاب کنید</p>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="panel controls-panel">
-                <h2 class="panel-title" id="controls-title">⚙️ تنظیمات</h2>
-                
+            <section class="panel controls-panel">
                 <div class="controls-grid">
-                    <div class="profile-section">
-                        <div class="profile-title">👤 انتخاب پروفایل</div>
-                        <div class="profile-buttons">
-                            <button class="profile-btn active" data-profile="1" type="button">پروفایل ۱</button>
-                            <button class="profile-btn" data-profile="2" type="button">پروفایل ۲</button>
-                        </div>
+                    <div class="profile-buttons">
+                        <button class="profile-btn active" data-profile="1">👤 پروفایل ۱</button>
+                        <button class="profile-btn" data-profile="2">👤 پروفایل ۲</button>
                     </div>
-                    
                     <div class="actions-section">
-                        <label class="btn btn-upload" for="excel-upload">
-                            📊 آپلود برنامه هفتگی
-                        </label>
+                        <label class="btn btn-upload" for="excel-upload">📊 آپلود برنامه</label>
                         <input type="file" id="excel-upload" class="sr-only" accept=".xlsx,.xls">
-                        
-                        <button class="btn btn-report" id="report-btn" type="button">
-                            📈 گزارش امروز
-                        </button>
+                        <button class="btn btn-report" id="report-btn">📈 گزارش امروز</button>
                     </div>
                 </div>
-            </div>
-        </div>
+            </section>
+        </main>
     </div>
 
     <div class="modal" id="report-modal">
         <div class="modal-content">
-            <div class="modal-header">
+            <header class="modal-header">
                 <h2 class="modal-title">📊 گزارش روزانه</h2>
-                <button class="close-btn" type="button">&times;</button>
-            </div>
+                <button class="close-btn">&times;</button>
+            </header>
             <pre class="report-content" id="report-data"></pre>
         </div>
     </div>
