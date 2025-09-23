@@ -23,8 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
             profileButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             
-            // نیازی به فراخوانی مجدد fetchPlanForDay نیست چون برنامه مشترک است
-            // اما برای خالی کردن پنل‌ها خوب است که باشد
             if (currentDay) {
                 fetchPlanForDay(currentDay);
             }
@@ -41,12 +39,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // گرفتن برنامه روز از بک‌اند (تغییر یافته)
+    // گرفتن برنامه روز از بک‌اند (تغییر یافته و صحیح)
     async function fetchPlanForDay(day) {
         try {
+            // این خط اصلاح شده و دیگر profileId ارسال نمی‌کند
             const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}`);
             
-            if (!response.ok) throw new Error('خطا در دریافت اطلاعات');
+            if (!response.ok) {
+                // نمایش خطای سرور در کنسول برای دیباگ بهتر
+                const errorText = await response.text();
+                console.error("Server Error:", errorText);
+                throw new Error('خطا در دریافت اطلاعات از سرور');
+            }
             currentPlan = await response.json();
             renderPlan(currentPlan);
         } catch (error) {
@@ -115,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
             set_number: parseInt(setNumber),
             weight: parseFloat(weight),
             reps: parseInt(reps),
-            profileId: currentProfileId // profileId برای لاگ‌ها همچنان ارسال می‌شود
+            profileId: currentProfileId
         };
 
         try {
@@ -125,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify(logData)
             });
             if (!response.ok) throw new Error('خطا در ذخیره اطلاعات');
-            const result = await response.json();
             btn.textContent = 'ذخیره شد';
             btn.disabled = true;
             btn.classList.add('saved');
@@ -135,7 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // مدیریت آپلود فایل اکسل (تغییر یافته)
     uploadInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -162,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(`${API_BASE_URL}/api/upload-plan`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    // profileId از بدنه درخواست حذف شد
                     body: JSON.stringify({ planData })
                 });
                 if (!response.ok) throw new Error('خطا در آپلود فایل');
@@ -176,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.readAsArrayBuffer(file);
     });
 
-    // نمایش گزارش روز
     reportBtn.addEventListener('click', async () => {
         const today = new Date().toISOString().split('T')[0];
         try {
