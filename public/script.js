@@ -1,3 +1,4 @@
+// public/script.js
 document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = '';
 
@@ -43,11 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-// گرفتن برنامه روز از بک‌اند (با profileId)
+    // گرفتن برنامه روز از بک‌اند (با profileId) - (تغییر یافته)
     async function fetchPlanForDay(day) {
         try {
-            // این خط را با دقت کپی و جایگزین کنید
-            const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}&profileId=${currentProfileId}`);
+            // profileId از آدرس درخواست حذف شد
+            const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}`);
             
             if (!response.ok) throw new Error('خطا در دریافت اطلاعات');
             currentPlan = await response.json();
