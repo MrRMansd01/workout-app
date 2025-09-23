@@ -8,13 +8,14 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// === اطلاعات اتصال به سوپابیس خود را اینجا وارد کنید ===
 const supabaseUrl = "https://oztfsqvtqvcupduyceyp.supabase.co";
 const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im96dGZzcXZ0cXZjdXBkdXljZXlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc5NTg1NDMsImV4cCI6MjA3MzUzNDU0M30.VMHFUPNj2deLnp0XRCzclCUcuHIl3RroB1NDQqWS8i8";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// اندپوینت برای آپلود برنامه از اکسل (دیگر به پروفایل وابسته نیست)
+// اندپوینت برای آپلود برنامه از اکسل
 app.post('/api/upload-plan', async (req, res) => {
-    const { planData } = req.body; // profileId حذف شد
+    const { planData } = req.body;
 
     // 1. پاک کردن کل برنامه قبلی
     const { error: deleteError } = await supabase
@@ -26,7 +27,7 @@ app.post('/api/upload-plan', async (req, res) => {
         return res.status(500).json({ error: deleteError.message });
     }
 
-    // 2. وارد کردن برنامه جدید (دیگر profile_id ندارد)
+    // 2. وارد کردن برنامه جدید
     const { data, error: insertError } = await supabase
         .from('workout_plans')
         .insert(planData)
@@ -39,14 +40,14 @@ app.post('/api/upload-plan', async (req, res) => {
     res.status(200).json({ message: 'برنامه با موفقیت آپلود شد', data });
 });
 
-// اندپوینت برای گرفتن برنامه یک روز خاص (دیگر به پروفایل وابسته نیست)
+// اندپوینت برای گرفتن برنامه یک روز خاص
 app.get('/api/plan', async (req, res) => {
-    const { day } = req.query; // profileId حذف شد
+    const { day } = req.query;
 
     const { data, error } = await supabase
         .from('workout_plans')
         .select('*')
-        .eq('day_name', day); // فیلتر پروفایل حذف شد
+        .eq('day_name', day); // <<<--- فیلتر کردن بر اساس روز
 
     if (error) {
         return res.status(500).json({ error: error.message });
@@ -55,7 +56,7 @@ app.get('/api/plan', async (req, res) => {
     res.status(200).json(data);
 });
 
-// اندپوینت برای ثبت یک ست (بدون تغییر، چون لاگ‌ها شخصی هستند)
+// اندپوینت برای ثبت یک ست
 app.post('/api/log-set', async (req, res) => {
     const { log_date, exercise_name, set_number, weight, reps, profileId } = req.body;
 
@@ -75,7 +76,7 @@ app.post('/api/log-set', async (req, res) => {
 });
 
 
-// اندپوینت برای دریافت گزارش (بدون تغییر، چون گزارش‌ها شخصی هستند)
+// اندپوینت برای دریافت گزارش
 app.get('/api/report', async (req, res) => {
     const { date, profileId } = req.query;
 
