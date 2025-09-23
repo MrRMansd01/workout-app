@@ -1,178 +1,247 @@
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #f0f2f5;
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;700&display=swap');
+
+:root {
+    --primary-color: #364f6b;
+    --secondary-color: #3fc1c9;
+    --accent-color: #f5f5f5;
+    --highlight-color: #fc5185;
+    --background-color: #f0f2f5;
+    --text-color: #333;
+    --white-color: #fff;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    box-sizing: border-box;
     margin: 0;
-    padding: 20px;
+    padding: 0;
+}
+
+body {
+    font-family: 'Vazirmatn', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    padding: 20px;
 }
 
 .main-container {
+    display: flex;
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
+    height: 90vh;
+    background-color: var(--white-color);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
 }
 
-.app-frame {
-    display: grid;
-    grid-template-columns: 1fr 1fr 200px;
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-        "blue green yellow"
-        "blue green brown";
+/* Sidebar Styles */
+.sidebar {
+    width: 280px;
+    background-color: var(--primary-color);
+    color: var(--accent-color);
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
     gap: 15px;
-    border: 2px solid #ccc;
-    padding: 15px;
-    background-color: #fff;
-    border-radius: 10px;
-    height: 80vh;
+    font-size: 1.5rem;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.panel {
+.logo i {
+    color: var(--secondary-color);
+}
+
+.profile-switcher p, .day-selector p {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.profile-buttons, .day-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.profile-btn, .day-btn, .control-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
     border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--accent-color);
+    text-align: right;
+}
+.day-btn {
+    flex: 1 1 calc(50% - 5px); /* Two buttons per row */
+    text-align: center;
+}
+
+.profile-btn:hover, .day-btn:hover, .control-btn:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.profile-btn.active, .day-btn.active {
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.controls {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* Content Area Styles */
+.content {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 20px;
     padding: 20px;
     overflow-y: auto;
 }
 
-.blue-panel {
-    grid-area: blue;
-    background-color: #4a90e2; /* Blue */
-    color: white;
-}
-
-.green-panel {
-    grid-area: green;
-    background-color: #7ed321; /* Green */
-}
-
-.brown-panel {
-    grid-area: brown;
-    background-color: #8b572a; /* Brown */
-    color: white;
+.panel {
+    background-color: var(--white-color);
+    padding: 25px;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
+}
+
+.panel h2 {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+    font-size: 1.4rem;
+    color: var(--primary-color);
+}
+
+/* Exercise List */
+.exercise-list-container {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+.exercise-item {
+    padding: 15px;
+    background-color: var(--accent-color);
+    margin-bottom: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-right: 5px solid transparent;
+    display: flex;
     justify-content: space-between;
-}
-
-.yellow-panel {
-    grid-area: yellow;
-    background-color: #f8e71c; /* Yellow */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-h2 {
-    margin-top: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-    padding-bottom: 10px;
-}
-
-.green-panel h2 {
-    color: #333;
-    border-bottom: 1px solid #ccc;
-}
-
-
-/* Days of the week */
-.day {
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    transition: background-color 0.3s, transform 0.2s;
-}
-
-.day:hover {
-    background-color: #e0e0e0;
-    transform: scale(1.05);
-}
-.day.active {
-    background-color: #4a90e2;
-    color: white;
-    font-weight: bold;
-}
-
-/* Exercise list */
-#exercises {
-    list-style: none;
-    padding: 0;
-}
-
-#exercises li {
-    padding: 12px;
-    background-color: rgba(255, 255, 255, 0.1);
-    margin-bottom: 8px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#exercises li:hover {
-    background-color: rgba(255, 255, 255, 0.3);
-}
-#exercises li.active {
-    background-color: #f8e71c;
-    color: #333;
-    font-weight: bold;
-}
-
-/* Logging form */
-#sets-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.set-row {
-    display: grid;
-    grid-template-columns: 50px 1fr 1fr 80px;
-    gap: 10px;
     align-items: center;
 }
-
-.set-row label {
+.exercise-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+.exercise-item.active {
+    background-color: var(--secondary-color);
+    color: var(--white-color);
+    border-right-color: var(--highlight-color);
     font-weight: bold;
 }
-
-.set-row input {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    width: 100%;
+.exercise-name {
+    flex-grow: 1;
+}
+.exercise-sets {
+    font-size: 0.9rem;
+    background-color: rgba(0,0,0,0.1);
+    padding: 4px 8px;
+    border-radius: 12px;
 }
 
-.save-set-btn {
-    padding: 8px 12px;
-    border: none;
-    background-color: #4a90e2;
-    color: white;
-    border-radius: 4px;
-    cursor: pointer;
-}
-.save-set-btn.saved {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-/* Controls */
-.controls {
+/* Logging Form */
+.sets-container {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
 }
-.upload-btn, #report-btn {
-    padding: 12px;
-    text-align: center;
-    background-color: #f8e71c;
-    color: #333;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+.set-row {
+    display: grid;
+    grid-template-columns: 80px 1fr 1fr 100px;
+    gap: 15px;
+    align-items: center;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+.set-label {
     font-weight: bold;
+}
+.set-input {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    width: 100%;
+    font-family: inherit;
+    text-align: center;
+}
+.save-btn {
+    padding: 10px 15px;
+    border: none;
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    font-weight: bold;
+}
+.save-btn:hover {
+    background-color: #31a9b0;
+}
+.save-btn.saved {
+    background-color: #28a745;
+    cursor: not-allowed;
+}
+.save-btn:disabled {
+    opacity: 0.7;
+}
+
+/* Empty State & Loading */
+.empty-state, .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+    color: #999;
+}
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
 }
 
 /* Modal Styles */
@@ -184,73 +253,61 @@ h2 {
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.6);
+    display: none;
+    align-items: center;
+    justify-content: center;
 }
-
 .modal-content {
-    background-color: #fefefe;
-    margin: 10% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
+    background-color: var(--white-color);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    width: 90%;
     max-width: 600px;
-    border-radius: 8px;
     position: relative;
+    animation: fadeIn 0.3s;
 }
-
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
 .close-btn {
-    color: #aaa;
     position: absolute;
-    top: 10px;
-    right: 20px;
+    top: 15px;
+    left: 20px; /* Changed from right to left for RTL */
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
+    border: none;
+    background: none;
+    color: #aaa;
 }
-
 #report-data {
     white-space: pre-wrap;
-    background-color: #eee;
-    padding: 15px;
-    border-radius: 5px;
-    max-height: 50vh;
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    max-height: 60vh;
     overflow-y: auto;
+    text-align: right;
+    direction: rtl;
 }
 
-/* Profile Switcher Styles */
-.profile-switcher {
-    margin-top: 15px;
-    padding-top: 15px;
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-}
-.profile-switcher p {
-    margin: 0 0 10px 0;
-    text-align: center;
-    font-size: 1em;
-}
-.profile-buttons {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-}
-.profile-btn {
-    flex-grow: 1;
-    padding: 10px;
-    border: 2px solid transparent;
-    background-color: rgba(255, 255, 255, 0.2);
+/* Toast Notification */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 15px 25px;
+    border-radius: 8px;
     color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    transition: background-color 0.3s, border-color 0.3s;
+    font-size: 1rem;
+    z-index: 2000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: slideIn 0.5s, fadeOut 0.5s 2.5s;
 }
-.profile-btn:hover {
-    background-color: rgba(255, 255, 255, 0.4);
-}
-.profile-btn.active {
-    background-color: #f8e71c; /* Yellow */
-    color: #333;
-    font-weight: bold;
-    border-color: #fff;
-}
+@keyframes slideIn { from { bottom: -100px; opacity: 0; } to { bottom: 20px; opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+.toast.success { background-color: #28a745; }
+.toast.error { background-color: #dc3545; }
