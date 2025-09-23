@@ -2,9 +2,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL = '';
 
-    // انتخابگرهای جدید
     const profileButtons = document.querySelectorAll('.profile-btn');
-
     const daysOfWeek = document.querySelectorAll('.day');
     const exerciseList = document.getElementById('exercises');
     const setsContainer = document.getElementById('sets-container');
@@ -15,25 +13,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeModalBtn = document.querySelector('.close-btn');
     const reportDataEl = document.getElementById('report-data');
 
-    // متغیرهای وضعیت
     let currentDay = '';
     let currentPlan = [];
-    let currentProfileId = 1; // پروفایل پیش‌فرض
+    let currentProfileId = 1;
 
-    // رویداد کلیک روی دکمه‌های پروفایل
     profileButtons.forEach(button => {
         button.addEventListener('click', () => {
             currentProfileId = parseInt(button.dataset.profile);
             profileButtons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             
+            // نیازی به فراخوانی مجدد fetchPlanForDay نیست چون برنامه مشترک است
+            // اما برای خالی کردن پنل‌ها خوب است که باشد
             if (currentDay) {
                 fetchPlanForDay(currentDay);
             }
         });
     });
 
-    // رویداد کلیک روی روزهای هفته
     daysOfWeek.forEach(dayEl => {
         dayEl.addEventListener('click', () => {
             currentDay = dayEl.dataset.day;
@@ -44,10 +41,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // گرفتن برنامه روز از بک‌اند (با profileId) - (تغییر یافته)
+    // گرفتن برنامه روز از بک‌اند (تغییر یافته)
     async function fetchPlanForDay(day) {
         try {
-            // profileId از آدرس درخواست حذف شد
             const response = await fetch(`${API_BASE_URL}/api/plan?day=${day}`);
             
             if (!response.ok) throw new Error('خطا در دریافت اطلاعات');
@@ -59,14 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // نمایش لیست حرکات
     function renderPlan(plan) {
         exerciseList.innerHTML = '';
         setsContainer.innerHTML = '';
         currentExerciseTitle.innerText = 'یک حرکت را انتخاب کنید';
         if (plan.length === 0) {
-            const profileText = currentProfileId === 1 ? 'پروفایل ۱' : 'پروفایل ۲';
-            exerciseList.innerHTML = `<li>برنامه‌ای برای این روز در ${profileText} یافت نشد.</li>`;
+            exerciseList.innerHTML = `<li>برنامه‌ای برای این روز یافت نشد.</li>`;
             return;
         }
         plan.forEach(item => {
@@ -83,7 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // نمایش فرم ورود وزنه و تکرار
     function renderSetInputs(exerciseName, setsCount) {
         currentExerciseTitle.innerText = `حرکت: ${exerciseName}`;
         setsContainer.innerHTML = '';
@@ -103,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ذخیره کردن اطلاعات یک ست
     async function saveSet(event) {
         const btn = event.target;
         const setRow = btn.closest('.set-row');
@@ -123,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
             set_number: parseInt(setNumber),
             weight: parseFloat(weight),
             reps: parseInt(reps),
-            profileId: currentProfileId
+            profileId: currentProfileId // profileId برای لاگ‌ها همچنان ارسال می‌شود
         };
 
         try {
@@ -143,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // مدیریت آپلود فایل اکسل
+    // مدیریت آپلود فایل اکسل (تغییر یافته)
     uploadInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -170,10 +162,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(`${API_BASE_URL}/api/upload-plan`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ planData, profileId: currentProfileId })
+                    // profileId از بدنه درخواست حذف شد
+                    body: JSON.stringify({ planData })
                 });
                 if (!response.ok) throw new Error('خطا در آپلود فایل');
-                alert(`برنامه برای پروفایل ${currentProfileId} با موفقیت آپلود شد!`);
+                alert(`برنامه عمومی با موفقیت آپلود شد!`);
                 if(currentDay) fetchPlanForDay(currentDay);
             } catch (error) {
                 console.error(error);
